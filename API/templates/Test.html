@@ -1,0 +1,76 @@
+{% extends "Layout/Header.html" %}
+
+{% block nav %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link " href="/">
+      <i class="icon-grid menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Dashboard</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#Live">
+      <i class="icon-grid menu-icon mdi mdi-access-point text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Live</span>
+    </a>
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="/test">
+      <i class="icon-grid menu-icon mdi mdi-pulse text-light" ></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Test</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/collection">
+      <i class="icon-layout menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Face collection</span>
+    </a>
+  </li>
+  
+  <li class="nav-item">
+    <a class="nav-link" href="/people">
+      <i class="icon-layout menu-icon mdi mdi-account-multiple-outline text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Trained people</span>
+    </a>
+  </li>
+ 
+</ul>
+{% endblock %}
+
+{% block Content %}
+{% load static %}
+
+<h2 class="main-title">{{service.name}}</h2><hr>
+<div class="container" style="width: 800px;">
+  <div class="card p-5">
+    <h4 class="text-muted">Drag and drop your video/photo here to start testing</h4>
+
+    <form class="pt-3 was-validated" enctype="multipart/form-data" action="/testing" method="post">
+      {% csrf_token %}
+      {% for message in messages %}
+      {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{message}}
+      </div>
+      {% else %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+        </div>
+      {% endif %}
+      {% endfor %}
+      <input value ="{{service.api_key}}" type="hidden" name="api_key">
+      <div class="form-group">
+        
+        <input type="file" class="form-control form-control-lg text-muted" name="file" id="file" required>
+      </div>
+      <div class="mt-3">
+        <button class="btn btn-block btn-primary font-weight-medium auth-form-btn" type="submit">Process</button>
+      </div>
+    </form>
+
+
+
+  </div>
+</div>
+
+{% endblock Content %}

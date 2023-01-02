@@ -1,0 +1,198 @@
+{% extends "Layout/Header.html" %}
+{% load static %}
+{% block nav %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link " href="/">
+      <i class="icon-grid menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Dashboard</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#Live">
+      <i class="icon-grid menu-icon mdi mdi-access-point text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Live</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/test">
+      <i class="icon-grid menu-icon mdi mdi-pulse text-light" ></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Test</span>
+    </a>
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="/collection">
+      <i class="icon-layout menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Face collection</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/people">
+      <i class="icon-layout menu-icon mdi mdi-account-multiple-outline text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Trained people</span>
+    </a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block Content %}
+
+
+<div class="modal fade" id="Restful_response_xml">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Restful API | Xml</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+
+          <div class="col-sm-6 col-lg-6">
+            <h2 class="main-title">Request</h2><hr>
+            <div class="card p-5 scrollable">
+                <h4 class="text-muted">{{req}}</h4>
+            </div>      
+          </div>
+          <div class="col-sm-6 col-lg-6">
+            <h2 class="main-title">Response</h2><hr>
+            <div class="card p-5 scrollable">
+                
+                <h4 class="text-muted">{{resX}}</h4> 
+            </div>
+          </div>
+       
+      </div>
+      </div>
+
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+
+  <div class="col-sm-6 col-lg-6 py-2">
+    <h2 class="main-title">Detected People</h2>
+  </div>
+
+  <div class="col-sm-6 col-lg-6 py-2" style="display: flex; justify-content: flex-end; align-items: center;">
+    <button data-bs-toggle="modal" data-bs-target="#Restful_response_xml" class="btn btn-primary me-2" type="button" title="Restful Xml">
+      <span class="sr-only">Restful Xml</span>
+      <span>Restful Xml</span>	
+    </button>
+  <button onclick="Clear_Faces()" class="btn btn-danger" type="button" title="Clear">
+    <span class="sr-only">Delete</span>
+    <span>Clear</span>	
+  </button> 
+  </div>
+  
+</div><hr>
+
+
+
+
+<div class="row ">
+  {% if face_collection %}
+  {% for detectedPerson in face_collection %}
+  <div class="modal fade" id="Info{{detectedPerson.id}}">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Info</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-6 col-lg-6">
+              <h2 class="main-title">Request</h2><hr>
+              <div class="card p-5 scrollable">
+                  <h4 class="text-muted">{{detectedPerson.request}}</h4>
+              </div>      
+            </div>
+            <div class="col-sm-6 col-lg-6">
+              <h2 class="main-title">Response</h2><hr>
+              <div class="card p-5 scrollable">
+                  <h3>Restful<hr></h3>
+                  <h4>Xml: </h4>
+                  <h4 class="text-muted">{{detectedPerson.restful_response_xml}}</h4>
+              </div>
+            </div>
+         
+        </div>
+        </div>
+  
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-6 py-3">
+      <div class="card p-3">
+          <div class="d-flex" style="justify-content: space-between;align-items: center;">
+              <div>
+                  <h2 class="main-title">{{detectedPerson.name}}</h2>  
+                  <small class="text-muted" style="font-size: 15px;"> {{detectedPerson.created_at.date}} | {{detectedPerson.created_at.hour}}:{{detectedPerson.created_at.minute}}</small>                
+
+              </div>
+              <div>
+              <button data-bs-toggle="modal" data-bs-target="#Info{{detectedPerson.id}}" class="btn btn-outline-secondary btn-rounded btn-icon" type="button" style="margin-right: 10px;" title="Info">
+                  <span class="sr-only">Info</span>
+                  <i class="fa fa-info text-primary"></i>	
+              </button>        
+              <button onclick="removeDP('{{detectedPerson.id}}')" class="btn btn-outline-secondary btn-rounded btn-icon" type="button" style="margin-right: 10px;" title="Delete">
+                  <span class="sr-only">Delete</span>
+                  <i class="fa fa-trash-o" style="font-size: 20px; color:rgb(181, 23, 23);"></i>	
+              </button>                 
+              </div>
+      
+          </div>
+
+          <hr>
+          <center>    
+            <div style="overflow-x: auto;">
+              <img src="{{detectedPerson.path}}" alt="" style="width: 400px;">
+            </div>
+          </center>      
+      </div>
+ 
+  </div>
+
+  <script>
+      function removeDP(id){
+        if (confirm("Are you sure?") == true) {
+        window.location.href = "/remove_detected_person/"+id;
+        }   
+      }
+      function Clear_Faces(){
+        if (confirm("Are you sure?") == true) {
+        window.location.href = "/clear";
+        }   
+      }
+  </script>
+  {% endfor %}
+  {% else %}
+      <center><h3 class="pt-5">--- Empty ---</h3></center>
+  {% endif %}
+
+</div>
+{% endblock Content %}

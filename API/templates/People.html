@@ -1,0 +1,80 @@
+{% extends "Layout/Header.html" %}
+{% load static %}
+{% block nav %}
+<ul class="nav">
+    <li class="nav-item">
+      <a class="nav-link " href="/">
+        <i class="icon-grid menu-icon text-light"></i>
+        <span class="menu-title text-light" style="font-size: 17px;">Dashboard</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#Live">
+        <i class="icon-grid menu-icon mdi mdi-access-point text-light"></i>
+        <span class="menu-title text-light" style="font-size: 17px;">Live</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/test">
+        <i class="icon-grid menu-icon mdi mdi-pulse text-light" ></i>
+        <span class="menu-title text-light" style="font-size: 17px;">Test</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/collection">
+        <i class="icon-layout menu-icon text-light"></i>
+        <span class="menu-title text-light" style="font-size: 17px;">Face collection</span>
+      </a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" href="/people">
+        <i class="icon-layout menu-icon mdi mdi-account-multiple-outline text-light"></i>
+        <span class="menu-title text-light" style="font-size: 17px;">Trained people</span>
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block Content %}
+<div style="display: flex;justify-content: space-between; align-items: center;">
+    <h2 class="main-title">Trained People</h2>
+
+    <a href="/train_data" class="btn btn-primary btn-rounded" style="margin-right: 15px;"> <i class="mdi mdi-altimeter" style="margin-right: 7px;"></i> Train data</a>
+
+        
+</div>
+
+<div class="row ">
+
+    {% if people %}
+    {% for person in people %}
+    <div class="col-sm-12 col-lg-12 py-3">
+        <div class="card p-3">
+            <div class="d-flex" style="justify-content: space-between;align-items: center;">
+                <div class="d-flex" style="justify-content: space-between;align-items: center;">
+                    <h4 class="main-titlem text-muted mt-2 me-3">{{person.id}}- </h2>
+                    <h2 class="main-title">{{person.name}}<small class="text-muted" style="font-size: 15px;"> {{person.photos.all.count}} photos </small></h2>                  
+                </div>
+                <button onclick="removeP('{{person.id}}')" class="btn btn-outline-secondary btn-rounded btn-icon" type="button" style="margin-right: 10px;" title="Delete">
+                    <span class="sr-only">Delete</span>
+                    <i class="fa fa-trash-o" style="font-size: 20px; color:rgb(181, 23, 23);"></i>	
+                </button>        
+            </div>            
+        </div>
+   
+    </div>
+
+    <script>
+        function removeP(id){
+          if (confirm("Are you sure?") == true) {
+          window.location.href = "/remove_person/"+id;
+          }   
+        }
+    </script>
+    {% endfor %}
+    {% else %}
+        <center><h3 class="pt-5">--- Empty ---</h3></center>
+    {% endif %}
+
+</div>
+{% endblock Content %}

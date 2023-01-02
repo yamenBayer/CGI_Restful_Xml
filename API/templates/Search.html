@@ -1,0 +1,282 @@
+{% extends 'HomePage.html' %}
+
+
+{% block HomeContent %}
+
+ <!-- Profile Modal -->
+<div class="modal fade" id="memberInfoModal">
+  <div class="modal-dialog modal-dialog-centered model-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">{{newProf.owner.first_name}} {{newProf.owner.last_name}}</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body">
+        <center> <div class="rounded-circle border shadow-lg" style="width: 300px;height: 290px;background: url('../{{newProf.photo}}');background-position: center;background-size: cover;"></div>
+          <hr style="width: 80%;">
+          <h4>Role: {{newProf.role}}</h4>
+          <p class="card-text m-0"><strong>Team: </strong>{% if prof_Team is not None %} {{prof_Team}} {% else %} None {% endif %}</p>
+          <hr style="width: 80%;">
+          <h4>Rate: <bl>{{newProf.rated}}%</bl></h4>
+          <h4>Tasks done: <bl>{{newProf.doneTasksNum}}</bl></h4>
+
+          </center>
+      </div>
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <!-- Task Info Modal -->
+ <div class="modal fade" id="taskInfoModal">
+    <div class="modal-dialog modal-dialog-centered model-xl">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">{{newTask.title}}</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <!-- Modal body -->
+        <div class="modal-body">
+
+          <div>{{newTask.description}}</div>
+          <hr width="100%">
+          <p>Started at: {{newTask.created_Date}}</p>
+          <p>Deadline: {{newTask.deadLine}} Days</p>
+          {% if newTask.is_Done %}
+          <p>Finished at: {{newTask.finishedDate}}</p>
+          {% else %}
+          <p>Daysleft: {{newTask.dyas_Left}} Days</p>
+          {%endif%}
+          
+
+
+         {% if  newTask.is_Done == False %}
+          <div class="progress" style="height:15px;border-radius: 5px;">
+            <div class="progress-bar" id="taskProgress{{newTask.id}}" style="width: {% if newTask.progress == '0.0%' or newTask.progress == '0%' %}5%{% else %}{{ newTask.progress }}{% endif %};">{{newTask.progress}}</div>
+          </div>
+          {% endif %}
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          {% if newTask.is_Done == False %}
+          {% if newTask.forUser == myProfile or new_Team.leader == myProfile %}
+          <form action="/suggestion/{{newTask.id}}" class="was-validated mb-3  d-flex align-items-center justify-content-center" method="post" style="margin-right: 120px;">
+            {% csrf_token %}
+              <select class="form-select" id="sugg" name="sugg">
+                <option></option>
+                {% for member in new_Team.members.all %}
+                {% if member != myProfile %}
+                  <option>{{ member.owner.username }}</option>
+                  {%endif%}
+                {% endfor %}
+              </select>          
+              <button type="submit" class="btn btn-primary ms-3"><i class="	fas fa-paper-plane"></i></button>
+          </form>
+          {%endif%}
+          {%endif%}
+            
+           <div class="d-flex justify-content-center">
+            {% if new_Team.leader == myProfile or newTask.forUser == myProfile %}
+            {% if newTask.is_Done == False %}
+            <button id="save{{newTask.id}}" onclick="save('{{newTask.id}}','{{newTask.project.id}}')" class="btn btn-success">Save</button>
+            <button id="finish{{newTask.id}}" onclick="finish('{{newTask.id}}','{{newTask.project.id}}')" class="btn btn-success" style="display: none;">Finish</button>
+            <button onclick="setValue('{{newTask.id}}')" class="btn btn-success" style="margin-left: 80px;">Set Progress</button>
+            {% else %}
+            <i class="fas fa-check-circle fa-2x text-dark" style="margin-right: 250px;"></i>
+            {% endif %}
+
+            {% else %}
+            {% if newTask.is_Done %}
+            <i class="fas fa-check-circle fa-2x text-dark" style="margin-right: 250px;"></i>
+            {% endif %}
+            {% endif %}
+
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" style="margin-left: 90px;">Close</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container d-flex align-items-center justify-content-center">
+
+  
+    {% if newTask is not None %}
+        
+    {% if newTask.dependsOn is not None %}
+    
+            <br><br><br>
+         <div class="shadow card bg-light text-dark border border-bottom-0" style="width: 550px;">
+              <div class="card-header">
+                
+                <div class="d-flex justify-content-between">
+                  <p class="card-text"><small class="text-muted">To: {{ newTask.forUser.owner.username }}</small></p>
+                  <p class="card-text"><small class="text-muted">Task number: {{newTask.id}}</small></p>
+                 </div>
+              </div>
+              <div class="card-body">  
+                <br>
+              <center>
+                <h5><< Content Hidden >></h5>
+                <h5>This task is depends on task with number</h5>
+                <h5>-> ({{ newTask.dependsOn.id }})</h5></center>
+              </div>
+            </div>
+        
+            {% else %}
+            
+                <br><br><br>
+            <div class="shadow card bg-light text-dark border border-bottom-0" style="width: 550px;">
+              <div class="card-header">
+                <div class="d-flex justify-content-between">
+                  <p class="card-text"><small class="text-muted">To: {{ newTask.forUser.owner.username }}</small></p>
+                  <p class="card-text"><small class="text-muted">Task number: {{newTask.id}}</small></p>
+                 </div>
+                 <p class="card-text"><small class="text-muted">Starts: {{newTask.created_Date}}</small></p>
+              </div>
+              <div class="p-3">  
+              <h5 class="card-title" style="height: 30px; overflow: hidden;text-overflow: ellipsis;">{{newTask.title}}</h5>
+             </div>
+              <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                 <p class="card-text"><small class="text-muted">Deadline {{newTask.deadLine}} Days</small></p>
+                 {% if  newTask.is_Done == False %}
+                 <p class="card-text"><small class="text-muted">Daysleft {{newTask.dyas_Left}} Days</small></p>    
+                 {% else %}
+                 <p class="card-text"><small class="text-muted">Finished at {{newTask.finishedDate}}</small></p> 
+                 {% endif %}             
+                </div>
+              
+                {% if  newTask.is_Done == False %}
+                <div class="progress" style="height:15px;border-radius: 5px;">
+                  <div class="progress-bar" id="taskProgress{{newTask.id}}" style="width: {% if newTask.progress == '0.0%' or newTask.progress == '0%' %}5%{% else %}{{ newTask.progress }}{% endif %};">{{newTask.progress}}</div>
+                </div>
+                {% endif %}
+                <br>
+                <div class="d-flex justify-content-between align-items-center">
+                  <button onclick="details('{{newTask.id}}','{{newTask.progress}}')" type="button" class="btn btn-primary btn m-2 " data-bs-toggle="modal" data-bs-target="#taskInfoModal">
+                    <i class="fas fa-info fa-fw me-3"></i><span>Details</span>
+                  </button>                  
+                  
+         
+                
+                  
+                  
+                  {% if myProfile == new_Team.leader and newTask.is_Done == False %}
+                  <button type="button" onclick="taskDelete()" class="btn btn-danger ">Delete</button>
+                  {% endif %}
+                  {% if newTask.is_Done %}
+                  <i class="fas fa-check-circle fa-2x"></i>
+                  {% endif %}
+                  <script>
+                    function taskDelete() {
+                      if (confirm("Are you sure?") == true) {
+                       window.location.href = "/taskDelete/"+"{{newTask.id}}";
+                      }
+                    }
+                  </script>
+                </div>
+  
+              </div>
+              
+            </div>
+        
+              {% endif %}
+
+              <script>
+
+                function setValue(id) {
+                  let text;
+                  let classVar;
+                  let url = "taskProgress"+id;
+                  let surl = "save"+id;
+                  let furl = "finish"+id;
+                  document.getElementById(furl).style = "display: none;";
+                  document.getElementById(surl).style = "display: block;";
+                  let value = prompt("Enter progress value:");
+                  if (value != null && value != "") {
+                   
+                    text = value + "%";
+                  
+                  
+                  let styleVar = "width: "+text+";";
+                    
+            
+                  if (parseInt(value) <= 0){
+                    classVar = "progress-bar bg-danger progress-bar-striped progress-bar-animated";
+                    styleVar = "width: 5%";
+                    text =  "0%";
+                  }
+                  else if (parseInt(value) < 25){
+                    classVar = "progress-bar bg-danger progress-bar-striped progress-bar-animated";
+                  }
+                    
+                  else if (parseInt(value) < 75) {
+                    classVar = "progress-bar bg-warning progress-bar-striped progress-bar-animated";
+                  }
+                    
+                  else if (parseInt(value) < 100) {
+                    classVar = "progress-bar bg-success progress-bar-striped progress-bar-animated";
+                  }
+                  else if (parseInt(value) == 100 || parseInt(value) > 100) {
+                    classVar = "progress-bar bg-success progress-bar-striped progress-bar-animated";
+                    styleVar = "width: 99%";
+                    text =  "100%";
+                    document.getElementById(surl).style = "display: none";
+                    document.getElementById(furl).style = "display: block";
+                  }
+                  document.getElementById(url).innerHTML = text;
+                  document.getElementById(url).style = styleVar;
+                  document.getElementById(url).className = classVar;
+                }
+            
+             
+              }
+              function save(id,pid){
+                let url = "taskProgress"+id;
+                value = document.getElementById(url).innerHTML;
+                window.location.href = "/saveTaskChanges/"+id+"/"+value+"/"+pid;
+              }
+              function finish(id,pid){
+                let url = "taskProgress"+id;
+                value = document.getElementById(url).innerHTML;
+                window.location.href = "/finishTask/"+id+"/"+value+"/"+pid;
+              }
+                </script>
+              </div>
+              {% endif %}
+    {% if newProf is not None %}
+    <div class="card border border-3 border-top-0 border-bottom-0 col-sm-5 ms-2" style="width:250px">
+
+      <div class="card-body d-flex align-items-center" style="flex-direction: column;">
+        <center><div class="rounded-circle border shadow mt-3" style="width: 150px;height: 140px;background: url('../{{newProf.photo}}');background-position: center;background-size: cover;"></div></center>
+        <hr width="100%">
+        <h4 class="card-title">{{newProf.owner.username}}</h4>
+
+        <p class="card-text"><strong>Role: </strong> {{newProf.role}}</p>
+        
+        <p class="card-text m-0"><strong>Team: </strong>{% if prof_Team is not None %} {{prof_Team}} {% else %} None {% endif %}</p>
+        
+        <button type="button" class="btn btn-primary btn m-2" data-bs-toggle="modal" data-bs-target="#memberInfoModal">
+          <i class="fas fa-info-circle fa-fw me-3"></i><span>See Info</span>
+        </button>
+        <br>
+
+      </div>
+    </div>
+    {% endif %}
+    {% if newProf is None and newTask is None %}
+    <br><br>
+        <center><h1>Not Found</h1></center>
+    {% endif %}
+    
+{% endblock %}

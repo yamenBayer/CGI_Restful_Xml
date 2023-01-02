@@ -1,0 +1,67 @@
+{% extends "Layout/Header.html" %}
+
+{% block nav %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link " href="/">
+      <i class="icon-grid menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Dashboard</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#Live">
+      <i class="icon-grid menu-icon mdi mdi-access-point text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Live</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/test">
+      <i class="icon-grid menu-icon mdi mdi-pulse text-light" ></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Test</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/collection">
+      <i class="icon-layout menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Face collection</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/people">
+      <i class="icon-layout menu-icon mdi mdi-account-multiple-outline text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Trained people</span>
+    </a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block Content %}
+{% load static %}
+
+<h2 class="main-title">{{service.name}}/Results</h2><hr>
+
+<div class="row">
+    <div class="col-sm-12 col-lg-12 py-3" style="overflow-x: auto;">
+        <center><img src="{{img}}" alt=""></center>
+    </div>
+    <div class="col-sm-6 col-lg-6 py-3">
+      <h2 class="main-title">The request that was triggered</h2><hr>
+      <div class="card p-5 scrollable">
+        <h4 class="text-muted">{{req}}</h4>
+      </div>      
+    </div>
+    <div class="col-sm-6 col-lg-6 py-3">
+      <h2 class="main-title">Response</h2><hr>
+      <div class="card p-5 scrollable">
+ 
+          <h3>Xml:</h3>
+          <h4 class="text-muted">{{resx}}</h4>
+
+      </div>
+    </div>
+ 
+</div>
+
+
+
+{% endblock Content %}

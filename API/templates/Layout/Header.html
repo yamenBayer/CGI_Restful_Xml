@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}  
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'vendors/feather/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'vendors/ti-icons/css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'vendors/css/vendor.bundle.base.css' %}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'vendors/ti-icons/css/themify-icons.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="{% static 'svg/Logo.svg' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendors/mdi/css/materialdesignicons.min.css' %}">
+
+    <title>Face recognition platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      .scrollable{
+        height: 400px;
+        overflow-y: auto;
+        }
+    </style>
+  </head>
+<body>
+
+<!-- Live modal -->
+<div class="modal fade" id="Live">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Live services</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <div class="row" id="liveServiceDiv">
+          {% if live_services %}
+            {% for service in live_services %}
+            <div class="col-sm-6 col-lg-6 py-3">
+              <div class="card p-3">
+                  <div class="d-flex" style="justify-content: space-between;align-items: center;">
+                    <h2 class="main-title">{{service.name}}</h2>
+                    <small class="text-muted" style="font-size: 15px;">{% if service.live_type %}{{service.socket_ip}}{% else %}PC{% endif %}</small>                  
+                  </div><hr class="mt-2">
+                   <div>
+                   {% if service.live_type %}
+                   <img src="{% url 'webcam_stream' service.socket_ip %}" width='500' style='border-radius: 10px;'>
+                   {% else %}
+                   <img src="{% url 'pccam_stream' %}" width="500" style="border-radius: 10px;">
+                   {% endif %}
+                  </div>
+              </div>
+          </div>
+            {% endfor %}
+            {% else %}
+            <center><h2>--- Empty ---</h2></center>
+            {% endif %}
+          </div>
+        </div>
+
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Create service modal -->
+<div class="modal fade" id="createServiceModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Create Service</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <form class="pt-3" class="was-validated" action="/add_service" method="post">
+          {% csrf_token %}
+          {% for message in messages %}
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{message}}
+          </div>
+          {% else %}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+            </div>
+          {% endif %}
+          {% endfor %}
+          <div class="form-group">
+            <input type="text" class="form-control form-control-lg"  name="name" placeholder="Name" required>
+          </div>
+          <div class="form-group">
+            <select class="form-select form-select-lg" onchange="display('liveDiv', this)" name="type" required>
+              <option value="1">Face recognition live</option>
+              <option value="0">Face recognition video</option>
+            </select>         
+          </div>
+          <div class="form-group">
+            <select class="form-select form-select-lg" id="liveDiv" onchange="display('ipDiv', this)" name="live_type" required>
+              <option value="0">Pc camera</option>
+              <option value="1">External camera</option>
+            </select>   
+            <div class="mt-3" id="ipDiv" style="display: none;">
+              <input type="text" class="form-control form-control-lg"  name="socket_ip" placeholder="Camera/Socket IP Address">
+            </div>      
+          </div>
+
+
+          <div class="mt-3">
+            <button class="btn btn-block btn-primary " type="submit">Create</button>
+          </div>
+        </form>
+
+
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <div class="container-scroller">
+  <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+      <a class="navbar-brand brand-logo" title="Face Recognition Platform" style="margin-right: 100px;" href="/"><i class="mdi mdi-camera-party-mode"  style="font-size: 30px"></i> FRP</a>
+      <a class="navbar-brand brand-logo-mini" title="Face Recognition Platform" href="/"><i class="mdi mdi-camera-party-mode" style="font-size: 30px;"></i></a>
+    </div>
+    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+      <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+        <span class="icon-menu"></span>
+      </button>
+      <ul class="navbar-nav mr-lg-2">
+        <li class="nav-item nav-search d-none d-lg-block">
+          <div class="input-group">
+            <div class="input-group-prepend hover-cursor" id="navbar-search-icon">
+              <span class="input-group-text" id="search">
+                <i class="icon-search me-3"></i>
+              </span>
+            </div>
+            <input type="text" class="form-control" id="navbar-search-input" placeholder="Search now" aria-label="search" aria-describedby="search">
+          </div>
+        </li>
+      </ul>
+      <ul class="navbar-nav navbar-nav-right">
+        {% if user.is_authenticated %}
+        <li class="nav-item nav-profile dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+              {{myProfile.owner.first_name}} {{myProfile.owner.last_name}} <i class="mdi mdi-menu-down"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+            <a class="dropdown-item" href="/signout">
+              <i class="mdi mdi-account"></i>
+              Logout
+            </a>
+          </div>
+        </li>
+        {% else %}
+        <li class="nav-item nav-profile dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+            <i class="mdi mdi-account" style="font-size: 25px;"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+            <a class="dropdown-item" href="/login">
+              <i class="mdi mdi-account"></i>
+              Login
+            </a>
+            <a class="dropdown-item" href="/signup">
+              <i class="mdi mdi-account-multiple-plus"></i>
+              Signup
+            </a>
+          </div>
+        </li>
+        {% endif %}
+      </ul> 
+      <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+        <span class="icon-menu"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container-fluid page-body-wrapper px-0">
+  <nav class="sidebar sidebar-offcanvas bg-primary" id="sidebar">
+    {% block nav %}
+    {% endblock nav %}
+  </nav>
+
+    <div class="main-panel">
+      <div class="content-wrapper">
+        <div class="row">
+          {% block Content %}
+          {% endblock Content %}  
+        </div>
+      </div>
+    </div> 
+
+  </div>
+</div>
+
+  <!-- <script>
+    $(document).ready(function(){
+      setInterval(function(){
+        $.ajax({
+          type: "GET",
+          url: "/realtime", 
+          success: function (response) {
+            var content = "Stopped";
+            
+            foreach(item in response.services){
+              $("#service_status_"+item.id).empty();
+
+
+              if(item.status)
+                content = "Running";
+
+              $("#service_status_"+item.id).append(content);
+            }
+
+          }
+        });
+      },2000);
+    })
+   
+  </script> -->
+
+
+
+    <script>
+      function display(id, elementValue) {
+             document.getElementById(id).style.display = elementValue.value == 1 ? 'block' : 'none';
+      }
+    </script>
+
+  <!-- plugins:js -->
+  <script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page -->
+  <script src="{% static 'vendors/chart.js/Chart.min.js' %}"></script>
+  <script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
+  <script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
+  <script src="{% static 'js/dataTables.select.min.js' %}"></script>
+
+  <!-- End plugin js for this page -->
+  <!-- inject:js -->
+  <script src="{% static 'js/off-canvas.js' %}"></script>
+  <script src="{% static 'js/hoverable-collapse.js' %}"></script>
+  <script src="{% static 'js/template.js' %}"></script>
+  <script src="{% static 'js/settings.js' %}"></script>
+  <script src="{% static 'js/todolist.js' %}"></script>
+  <!-- endinject -->
+  <!-- Custom js for this page-->
+  <script src="{% static 'js/dashboard.js' %}"></script>
+  <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
+  <!-- End custom js for this page-->
+
+    </body>
+</html>

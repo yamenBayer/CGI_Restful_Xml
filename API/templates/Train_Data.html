@@ -1,0 +1,80 @@
+{% extends "Layout/Header.html" %}
+
+{% block nav %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link " href="/">
+      <i class="icon-grid menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Dashboard</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#Live">
+      <i class="icon-grid menu-icon mdi mdi-access-point text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Live</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/test">
+      <i class="icon-grid menu-icon mdi mdi-pulse text-light" ></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Test</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/collection">
+      <i class="icon-layout menu-icon text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Face collection</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/people">
+      <i class="icon-layout menu-icon mdi mdi-account-multiple-outline text-light"></i>
+      <span class="menu-title text-light" style="font-size: 17px;">Trained people</span>
+    </a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block Content %}
+{% load static %}
+<div class="container" style="width: 700px;">
+<div class="card p-5">
+    <h2>Train data</h2><hr>
+    <form class="pt-3 was-validated" action="/train_data" method="post">
+        {% csrf_token %}
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{message}}
+        </div>
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{message}}
+          </div>
+        {% endif %}
+        {% endfor %}
+        <div class="form-group">
+          <input type="text" class="form-control form-control-lg"  name="name" placeholder="Name" required>
+        </div>
+        <div class="form-group">
+          <select class="form-select form-select-lg" onchange="display('ipDiv2', this)" name="live_type" >
+            <option value="0">Pc camera</option>
+            <option value="1">External camera</option>
+          </select> 
+        </div>
+        <div class="form-group" id="ipDiv2" style="display: none;">
+          <select class="form-select form-select-lg" name="sip">
+            {% for service in cam_services %}
+            <option value="{{service.socket_ip}}">{{service.name}}</option>
+            {% endfor %}
+          </select> 
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-block btn-primary" type="submit">Train</button>
+        </div>
+      </form>    
+</div>
+
+
+</div>
+{% endblock Content %}
